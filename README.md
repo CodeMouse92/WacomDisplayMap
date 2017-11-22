@@ -24,7 +24,8 @@ allows you to quickly map your Wacom tablet to any connected display.
 
 ## Prerequisites
 
-You must have the packages `pcregrep` installed on your system, which should be available from your system's default package repository. You should also have
+You must have the package `pcregrep` installed on your system, which should be
+available from your system's default package repository. You should also have
 `xsetwacom` on your system, which is usually pre-installed on Ubuntu by default.
 
 ## Installation
@@ -52,9 +53,11 @@ $ wacommap
 
 Simply run `wacommap` to start the script.
 
-First, it will search for compatible Wacom devices. If you receive the message
-"No Wacom stylus or eraser detected.", be sure you've connected your Wacom
-graphics tablet to your computer.
+First, it will search for compatible Wacom devices. If you receive the message...
+
+> No Wacom stylus or eraser detected.
+
+...be sure you've connected your Wacom graphics tablet to your computer.
 
 Next, it will automatically detect all connected displays. If only one display
 is detected, it will automatically select it. Otherwise, if multiple displays
