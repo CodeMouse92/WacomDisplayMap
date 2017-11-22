@@ -1,0 +1,100 @@
+#!/bin/bash
+
+# WacomDisplayMap
+# Easily map a Wacom graphics tablet to a display,
+# without having to muck through a bunch of device lists.
+#
+# AUTHOR(S): Jason C. McDonald
+# VERSION: 1.0
+# GITHUB: https://github.com/CodeMouse92/WacomDisplayMap
+
+# Copyright (c) 2017 Jason C. McDonald.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#Isolate the id of the stylus and eraser devices automatically.
+rawID1=`xsetwacom --list | pcregrep -M 'STYLUS' | pcregrep -o 'id\: \d*'`
+rawID2=`xsetwacom --list | pcregrep -M 'ERASER' | pcregrep -o 'id\: \d*'`
+#Trim further
+device1=`echo "$rawID1" | grep -o "[0-9]\+"`
+device2=`echo "$rawID2" | grep -o "[0-9]\+"`
+
+if [[ -z "$device1" && -z "$device2" ]]
+then
+    echo "No Wacom stylus or eraser detected."
+    exit 0
+fi
+
+# Use xrandr to parse out the valid display names.
+output=`xrandr | pcregrep -M '\bconnected' | pcregrep -o '^[^ ]+'`
+# Store the display names in an array.
+IFS=$'\n' read -rd '' -a displays <<< "$output"
+# Get the number of valid displays
+displaycount=${#displays[@]}
+
+# Print all display options nicely.
+echo "The following displays were detected:"
+for index in ${!displays[@]}
+do
+    num=$((index+1))
+    echo "$num: ${displays[index]}"
+done
+
+if [[ $displaycount -eq 1 ]]
+then
+    echo "Automatically selecting ${displays[0]}."
+    display=${displays[0]}
+else
+    while true
+    do
+        read -p "Your selected display number? " answer
+
+        case $answer in
+        [1-${displaycount}])
+            # Offset to 0-based index again.
+            answer=$((answer-1))
+            display=${displays[answer]}
+            break
+            ;;
+        *)
+            echo "Invalid selection."
+            ;;
+        esac
+    done
+fi
+
+# Map the devices to the selected display
+if [ -n "$device1" ]
+then
+    echo "Mapping Wacom Stylus to display ${display}..."
+    xsetwacom --set $device1 MapToOutput ${display}
+fi
+
+if [ -n "$device2" ]
+then
+    echo "Mapping Wacom Eraser to display ${display}..."
+    xsetwacom --set $device2 MapToOutput ${display}
+fi
+
+echo "Happy drawing!"
