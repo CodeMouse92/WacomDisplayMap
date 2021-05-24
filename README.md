@@ -42,7 +42,7 @@ directory.
 # Move to the location where the script will live.
 $ cd /usr/local/bin
 # Download the script file from GitHub directly.
-$ sudo wget https://github.com/CodeMouse92/WacomDisplayMap/raw/master/wacommap
+$ sudo wget https://github.com/CodeMouse92/WacomDisplayMap/raw/main/wacommap
 # Make the script executable. (You are encouraged to read the file BEFORE doing this, so you know what it does.
 $ sudo chmod +x wacommap
 # Run the script.
